@@ -11,3 +11,4 @@ Please note that requirements will not be managed for you.
 You will have to do this yourself. Note that among others you will need
 
 * Qiskit optimization with CPLEX to solve max-cut problems `pip install 'qiskit-optimization[cplex]'`
+* numba
