@@ -1,22 +1,11 @@
 
+"""Helper functions to learn the map between noisy data and error mitigated data."""
+
 from functools import lru_cache
 import numpy as np
-from numba import njit
-from sklearn.neural_network import MLPRegressor
 
 from qiskit.circuit import QuantumCircuit
 from qiskit import quantum_info as qi
-
-
-@njit()
-def local_exp_fast_old(angle, a, b):
-    state = np.array(
-        [
-            a * np.cos(angle / 2) - 1j * b * np.sin(angle / 2),
-            b * np.cos(angle / 2) - 1j * a * np.sin(angle / 2),
-        ]
-    )
-    return np.vdot(state, np.array([1, -1]) * state).real
 
 
 @lru_cache(maxsize=None)
@@ -66,15 +55,6 @@ def get_local_exp_zz_fast(correlator_indices, flip_list: np.array, theta):
     beta_total = -2 * np.sum(theta[len(theta) // 2:])
 
     return [local_exp(beta_total, flip_list[i], flip_list[j]) for i, j in correlator_indices]
-
-
-def cost_denoised(theta, mlqaoa_obj):
-    """Denoised cost operator."""
-    local_exp_Z, local_exp_ZZ = mlqaoa_obj.evaluate_local_exp_on_device(
-        theta, all_to_all=True
-    )
-
-    return sum(mlqaoa_obj.regr.predict([local_exp_Z + local_exp_ZZ])[0])
 
 
 def get_data(p, qaoa_obj, num_training: int = 1):
