@@ -35,15 +35,15 @@ Instead, we provide the graphs with and without the SAT initial mapping.
 
 This repository provides the following tutorials:
 
-* [Simulations](https://github.ibm.com/DEG/large_scale_qaoa_paper/blob/main/notebooks/simulations.ipynb) an example notebook showing how to run the methods of the paper on a simulator.
-* [Result plotting](https://github.ibm.com/DEG/large_scale_qaoa_paper/blob/main/notebooks/plot_results.ipynb) to plot the data that has been saved.
+* [Simulations](https://github.com/eggerdj/large_scale_qaoa/blob/main/notebooks/simulations.ipynb) an example notebook showing how to run the methods of the paper on a simulator.
+* [Result plotting](https://github.com/eggerdj/large_scale_qaoa/blob/main/notebooks/plot_results.ipynb) to plot the data that has been saved.
 
 ## Scripts
 
 This repository provides the scripts with which the data in the large-scale QAOA paper were gathered. These scripts include
 
-* [Find best path](https://github.ibm.com/DEG/large_scale_qaoa_paper/blob/main/scripts/find_best_path.py) which should be run first to find the best line of qubits with which to run.
-* [Large-scale QAOA](https://github.ibm.com/DEG/large_scale_qaoa_paper/blob/main/scripts/large_scale_qaoa.py) which performs the training of a neural network for noise mitigation and then runs QAOA on a given graph.
+* [Find best path](https://github.com/eggerdj/large_scale_qaoa/blob/main/scripts/find_best_path.py) which should be run first to find the best line of qubits with which to run.
+* [Large-scale QAOA](https://github.com/eggerdj/large_scale_qaoa/blob/main/scripts/large_scale_qaoa.py) which performs the training of a neural network for noise mitigation and then runs QAOA on a given graph.
 
 ## References
 
