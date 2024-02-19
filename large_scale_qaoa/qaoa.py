@@ -22,7 +22,30 @@ from large_scale_qaoa.graph_utils import build_graph
 
 
 class ErrorMitigationQAOA:
-    """A class to run error mitigated QAOA and efficiently construct its circuits."""
+    """A class to run error mitigated QAOA and efficiently construct its circuits.
+
+    Conventions: the QAOA circuits in this class are built with the following
+    definitions. The aim is to minimize the energy of the cost operator
+    :math:`H_c` to maximize the value of the classical cost function :math:`f(x)`.
+    The variational Ansatz is made from the blocks
+
+    ..math::
+
+        \exp(-i\beta_k H_m)\exp(-i\gamma_k H_c)
+
+    where the mixer operator is thus defined by
+
+    ..math::
+
+        H_m = -\sum_i X_i
+
+    so that the |+> state is the ground state of :math:`H_m`. The cost operator is defined by
+
+        H_c = \sum_{i,j} w_{i,j}Z_iZ_j
+
+    This means that for the mixer we apply rotations of the form :math:`R_{x}(-2\beta)` and
+    for each term in the cost operator we apply the gates :math:`Rzz(2\gamma w_{ij})`.
+    """
 
     def __init__(
         self,
@@ -132,7 +155,7 @@ class ErrorMitigationQAOA:
         hc_evo = QuantumCircuit(self.N)
         op = qi.SparsePauliOp.from_list(self.local_correlators)
         gamma_param = Parameter("g")
-        hc_evo.append(PauliEvolutionGate(op, -gamma_param), range(self.N))
+        hc_evo.append(PauliEvolutionGate(op, gamma_param), range(self.N))
 
         # This will allow us to recover the permutation of the measurements that the swap introduce.
         hc_evo.measure_all()
