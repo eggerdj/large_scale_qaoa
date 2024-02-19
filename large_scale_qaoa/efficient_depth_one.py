@@ -24,7 +24,24 @@ def mixer(beta: float):
 
 
 def correlator(i: int, j: int, graph: np.array, gamma: float, beta: float):
-    """Computes the correlator <ZiZj>
+    r"""Computes the correlator <ZiZj>
+
+    Convention: for the mixer we apply rotations of the form :math:`R_{x}(-2\beta)`.
+    For each term in the cost operator we apply the gates :math:`Rzz(2\gamma w_{ij})`
+    this corresponds to a cost operator of the form:
+
+    ..math::
+
+        \sum_{i,j=0}^{n-1}w_{i,j}Z_iZ_j
+
+    Now, we decompose the gate :math:`Rzz(2\gamma w_{ij})` into a controlled-phase
+    gate and local phase gates. The following identity holds
+
+    ..math::
+
+        Rzz(\theta) = \exp(i\theta/2)\cdot Rz(\theta)\otimes Rz(\theta)\cdot CP(-2\theta)
+
+    Here, :math:`CP(\theta)=\text{diag}(1,1,1,e^{i\theta})`.
 
     Args:
         i: The first index of the correlator.
@@ -35,7 +52,7 @@ def correlator(i: int, j: int, graph: np.array, gamma: float, beta: float):
     """
     n = len(graph)
 
-    # Initial state of the qubits as equal superposition.
+    # Initial state of the qubits as equal superposition of 0 and 1, i.e. |+>.
     qi = np.array(
         [
             [np.sqrt(0.5)],
@@ -61,11 +78,17 @@ def correlator(i: int, j: int, graph: np.array, gamma: float, beta: float):
         wi += graph[i, k]
         wj += graph[j, k]
 
-    qi[1] *= np.exp(1.0j * wi * gamma / 2)
-    qj[1] *= np.exp(1.0j * wj * gamma / 2)
+    # TODO factor of two form the summation??
+    # Apply \sum_k Rz(2 gamma w_ik) to qubit i
+    qi[0] *= np.exp(-1.0j * (2 * wi * gamma) / 2)
+    qi[1] *= np.exp(1.0j * (2 * wi * gamma) / 2)
+
+    # Apply Rz(2 gamma w_jk) to qubit j
+    qj[0] *= np.exp(-1.0j * (2 * wj * gamma) / 2)
+    qj[1] *= np.exp(1.0j * (2 * wj * gamma) / 2)
 
     # Switch to density matrices and compute the effect of
-    # the two-qubit gate that comes from qubit k neq i,j
+    # the two-qubit CP gate that comes from qubit k neq i,j
     rhoi, rhoj = qi * qi.T.conj(), qj * qj.T.conj()
     rhoij = np.kron(rhoi, rhoj)
 
@@ -76,16 +99,17 @@ def correlator(i: int, j: int, graph: np.array, gamma: float, beta: float):
         if graph[i, k] == 0.0 and graph[j, k] == 0.0:
             continue
 
-        phasei = np.exp(-1.0j * gamma * graph[i, k])
-        phasej = np.exp(-1.0j * gamma * graph[j, k])
+        phasei = np.exp(-1.0j * 4 * gamma * graph[i, k])
+        phasej = np.exp(-1.0j * 4 * gamma * graph[j, k])
         u1 = np.diag([1.0, phasej, phasei, phasei * phasej])
 
         rhoij = 0.5 * rhoij + 0.5 * np.dot(u1, np.dot(rhoij, u1.conj().T))
 
-    # Apply the two-qubit term between `i` and `j`
+    # Apply the two-qubit Rzz gate between `i` and `j`
     if graph[i, j] != 0.0:
-        phase = np.exp(1.0j * gamma / 2.0 * graph[i, j])
-        Uij = np.diag([1.0, phase, phase, 1.0])
+        phase_m = np.exp(-1.0j * (2 * gamma * graph[i, j]) / 2)
+        phase_p = np.exp(1.0j * (2 * gamma * graph[i, j]) / 2)
+        Uij = np.diag([phase_m, phase_p, phase_p, phase_m])
         rhoij = np.dot(Uij, np.dot(rhoij, Uij.conj().T))
 
     # Apply the mixer operator
@@ -99,7 +123,10 @@ def correlator(i: int, j: int, graph: np.array, gamma: float, beta: float):
 
 
 def energy(graph: np.array, gamma: float, beta: float):
-    """Evaluate the energy of a given gamma and beta by summing the correlators."""
+    """Evaluate the energy of a given gamma and beta by summing the correlators.
+
+    This function applies to quadratic problems. See
+    """
     n = len(graph)
     energy_ = 0
     for i in range(n):
