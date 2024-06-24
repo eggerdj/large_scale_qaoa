@@ -33,7 +33,7 @@ class LightConeQAOA:
 
         circuits, coeffs = [], []
         for u, v, data in self._graph.edges(data=True):
-            circ = self.make_radius_circuit((u, v), theta, radius=2).decompose()
+            circ = self.make_radius_two_circuit((u, v), theta).decompose()
             circuits.append(circ)
             coeff = data["weight"] if "weight" in data else 1.0
             coeffs.append(coeff)

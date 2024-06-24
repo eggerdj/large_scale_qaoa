@@ -280,8 +280,9 @@ class ErrorMitigationQAOA:
                         local_exp_zz[idx] += (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
                         idx += 1
             else:
-                for idx, (i, j) in enumerate(self.G.edges()):
-                    local_exp_zz[idx] += (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
+                for idx, (i, j, data) in enumerate(self.G.edges(data=True)):
+                    w = data['weight']
+                    local_exp_zz[idx] += w * (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
 
         num_shots = sum(counts.values())
         local_exp_z = [val / num_shots for val in local_exp_z]

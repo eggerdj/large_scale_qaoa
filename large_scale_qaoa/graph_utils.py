@@ -13,11 +13,13 @@ def build_graph(paulis: List[Tuple[str, float]]) -> nx.Graph:
     Returns:
         A networkx graph.
     """
+    graph = nx.Graph()
     edges = []
-    for pauli_str, _ in paulis:
-        edges.append([idx for idx, char in enumerate(pauli_str[::-1]) if char == "Z"])
-
-    return nx.from_edgelist(edges)
+    for pauli_str, weight in paulis:
+        edge = [idx for idx, char in enumerate(pauli_str[::-1]) if char == "Z"]
+        edges.append((edge[0], edge[1], weight))
+    graph.add_weighted_edges_from(edges)
+    return graph
 
 
 def build_paulis(graph: nx.Graph) -> List[Tuple[str, float]]:
@@ -26,9 +28,10 @@ def build_paulis(graph: nx.Graph) -> List[Tuple[str, float]]:
     This function does the inverse of `build_graph`
     """
     pauli_list = []
-    for edge in graph.edges():
+    for u, v, data in graph.edges(data=True):
         paulis = ["I"] * len(graph)
-        paulis[edge[0]], paulis[edge[1]] = "Z", "Z"
-        pauli_list.append(("".join(paulis)[::-1], 1.0))
+        paulis[u], paulis[v] = "Z", "Z"
+        coeff = data["weight"] if "weight" in data else 1.0
+        pauli_list.append(("".join(paulis)[::-1], coeff))
 
     return pauli_list
