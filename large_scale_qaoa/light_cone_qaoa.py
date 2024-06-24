@@ -31,16 +31,18 @@ class LightConeQAOA:
     def depth_two_qaoa(self, theta: List[float]) -> float:
         """Make the circuit for the light cone QAOA."""
 
-        circuits = []
-        for edge in self._graph.edges:
-            circ = self.make_radius_two_circuit(edge, theta).decompose()
+        circuits, coeffs = [], []
+        for u, v, data in self._graph.edges(data=True):
+            circ = self.make_radius_circuit((u, v), theta, radius=2).decompose()
             circuits.append(circ)
+            coeff = data["weight"] if "weight" in data else 1.0
+            coeffs.append(coeff)
 
         results = AerSimulator(method="automatic").run(circuits, shots=self.shots).result()
 
         observable = 0.0
-        for counts in results.get_counts():
-            observable += self._sum_zz(counts)
+        for counts, coeff in zip(results.get_counts(), coeffs):
+            observable += coeff * self._sum_zz(counts)
 
         return observable
 
@@ -106,15 +108,17 @@ class LightConeQAOA:
         """
         g_len = len(self._graph)
 
-        correlators, masks = [], []
+        correlators, masks, coeffs = [], [], []
         for edge in edges:
+            u, v = edge[0], edge[1]
             mask = [0] * g_len
             paulis = ["I"] * g_len
-            mask[edge[0]], mask[edge[1]] = 1, 1
-            paulis[edge[0]], paulis[edge[1]] = "Z", "Z"
-
+            mask[u], mask[v] = 1, 1
+            paulis[u], paulis[v] = "Z", "Z"
             correlators.append(paulis)
             masks.append(mask)
+            coeff = self._graph[u][v]["weight"] if "weight" in self._graph[u][v] else 1.0
+            coeffs.append(coeff)
 
         num_correl = len(correlators)
         correlators = np.array(correlators)
@@ -132,7 +136,7 @@ class LightConeQAOA:
         filtered_correl = correlators[indices].reshape((num_correl, new_len))
 
         paulis = []
-        for pauli in filtered_correl:
-            paulis.append(("".join(pauli)[::-1], 1.0))
+        for pauli, coeff in zip(filtered_correl, coeffs):
+            paulis.append(("".join(pauli)[::-1], coeff))
 
         return paulis, (src_idx1, src_idx2)

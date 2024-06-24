@@ -6,7 +6,7 @@ from qiskit import transpile
 from qiskit.circuit import QuantumCircuit, ClassicalRegister
 from qiskit.converters import circuit_to_dag, dag_to_circuit
 
-from qiskit import Aer
+from qiskit_aer import Aer
 from qiskit import quantum_info as qi
 from qiskit.circuit import Parameter
 from qiskit.circuit.library import PauliEvolutionGate
