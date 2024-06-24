@@ -3,6 +3,7 @@
 
 from unittest import TestCase
 import networkx as nx
+import numpy as np
 
 from qiskit_aer import AerSimulator
 
@@ -36,6 +37,31 @@ class TestLightConeQAOA(TestCase):
         test_thetas = [[1, 1, 0, 1], [1, 2, 0, -0.5], [0, 0, 0, 0], [-1, -1, -2, -2]]
 
         graph = nx.random_regular_graph(3, 12, seed=2)
+
+        paulis = build_paulis(graph)
+
+        lc_qaoa = LightConeQAOA(graph, shots=100000)
+        em_qaoa = ErrorMitigationQAOA(100000, paulis, AerSimulator(method="automatic"))
+
+        for theta in test_thetas:
+            circ = em_qaoa.create_qaoa_circ_pauli_evolution(theta).decompose()
+            counts = AerSimulator(method="automatic").run(circ, shots=100000).result().get_counts()
+
+            _, exp_zz = em_qaoa.get_local_expectation_values_from_counts(counts)
+
+            normal_val = sum(exp_zz)
+            light_cone_val = lc_qaoa.depth_two_qaoa(theta)
+
+            self.assertAlmostEqual(normal_val, light_cone_val, places=1)
+
+    def test_circuit_weighted(self):
+        """Test that weighted light-cone QAOA gives the same results as standard QAOA."""
+
+        test_thetas = [[1, 1, 0, 1], [1, 2, 0, -0.5], [0, 0, 0, 0], [-1, -1, -2, -2]]
+
+        graph = nx.random_regular_graph(3, 12, seed=2)
+        for (u, v) in graph.edges():
+            graph.edges[u, v]['weight'] = np.random.normal()
 
         paulis = build_paulis(graph)
 

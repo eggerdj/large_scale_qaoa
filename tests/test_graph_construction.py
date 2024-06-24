@@ -1,6 +1,7 @@
 
 from unittest import TestCase
 import networkx as nx
+import numpy as np
 
 from large_scale_qaoa.graph_utils import build_graph, build_paulis
 
@@ -26,6 +27,19 @@ class TestGraphRoundTrip(TestCase):
 
         for seed in range(5):
             graph1 = nx.random_regular_graph(3, 10, seed=seed)
+            graph2 = build_graph(build_paulis(graph1))
+
+            self.assertTrue(self._test_edge_equality(graph1, graph2))
+
+
+    def test_weighted_round_trip(self):
+        """Test that we can easily round-trip weighted Pauli the graphs."""
+
+        for seed in range(5):
+            graph1 = nx.random_regular_graph(3, 10, seed=seed)
+            for (u, v) in graph1.edges():
+                graph1.edges[u, v]['weight'] = np.random.normal()
+
             graph2 = build_graph(build_paulis(graph1))
 
             self.assertTrue(self._test_edge_equality(graph1, graph2))
