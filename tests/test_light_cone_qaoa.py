@@ -4,7 +4,7 @@
 from unittest import TestCase
 import networkx as nx
 
-from qiskit.providers.aer import AerSimulator
+from qiskit_aer import AerSimulator
 
 from large_scale_qaoa.light_cone_qaoa import LightConeQAOA
 from large_scale_qaoa.graph_utils import build_paulis

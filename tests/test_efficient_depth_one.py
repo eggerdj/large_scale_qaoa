@@ -2,7 +2,7 @@ import networkx as nx
 import numpy as np
 from unittest import TestCase
 
-from qiskit.providers.aer import AerSimulator
+from qiskit_aer import AerSimulator
 
 from large_scale_qaoa.qaoa import ErrorMitigationQAOA
 from large_scale_qaoa.efficient_depth_one import energy
