@@ -48,11 +48,11 @@ class ErrorMitigationQAOA:
     """
 
     def __init__(
-        self,
-        shots: int,
-        local_correlators: List[Tuple[str, float]],
-        backend,
-        path: Optional[List[int]] = None,
+            self,
+            shots: int,
+            local_correlators: List[Tuple[str, float]],
+            backend,
+            path: Optional[List[int]] = None,
     ):
         """Initialize the QAOA class with the paulis that describe the graph.
 
@@ -116,13 +116,13 @@ class ErrorMitigationQAOA:
         return dag_to_circuit(dag)
 
     def create_qaoa_circ_pauli_evolution(
-        self,
-        theta,
-        superposition=True,
-        random_cut=None,
-        transpile_circ: bool = False,
-        remove_rz: bool = False,
-        apply_swaps: bool = True,
+            self,
+            theta,
+            superposition=True,
+            random_cut=None,
+            transpile_circ: bool = False,
+            remove_rz: bool = False,
+            apply_swaps: bool = True,
     ):
         """Main circuit construction method.
 
@@ -246,9 +246,9 @@ class ErrorMitigationQAOA:
         return meas_map
 
     def get_local_expectation_values_from_counts(
-        self,
-        counts: Dict[str, int],
-        all_to_all: bool = False,
+            self,
+            counts: Dict[str, int],
+            all_to_all: bool = False,
     ):
         """Compute the expectation value of Z and ZZ.
 
@@ -277,12 +277,11 @@ class ErrorMitigationQAOA:
                 idx = 0
                 for i in range(self.N):
                     for j in range(i + 1, self.N):
-                        local_exp_zz[idx] += (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
+                        local_exp_zz[idx] += self.G[i][j]['weight'] * (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
                         idx += 1
             else:
                 for idx, (i, j, data) in enumerate(self.G.edges(data=True)):
-                    w = data['weight']
-                    local_exp_zz[idx] += w * (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
+                    local_exp_zz[idx] += data['weight'] * (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
 
         num_shots = sum(counts.values())
         local_exp_z = [val / num_shots for val in local_exp_z]
