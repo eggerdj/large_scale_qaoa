@@ -48,11 +48,11 @@ class ErrorMitigationQAOA:
     """
 
     def __init__(
-            self,
-            shots: int,
-            local_correlators: List[Tuple[str, float]],
-            backend,
-            path: Optional[List[int]] = None,
+        self,
+        shots: int,
+        local_correlators: List[Tuple[str, float]],
+        backend,
+        path: Optional[List[int]] = None,
     ):
         """Initialize the QAOA class with the paulis that describe the graph.
 
@@ -116,13 +116,13 @@ class ErrorMitigationQAOA:
         return dag_to_circuit(dag)
 
     def create_qaoa_circ_pauli_evolution(
-            self,
-            theta,
-            superposition=True,
-            random_cut=None,
-            transpile_circ: bool = False,
-            remove_rz: bool = False,
-            apply_swaps: bool = True,
+        self,
+        theta,
+        superposition=True,
+        random_cut=None,
+        transpile_circ: bool = False,
+        remove_rz: bool = False,
+        apply_swaps: bool = True,
     ):
         """Main circuit construction method.
 
@@ -246,9 +246,9 @@ class ErrorMitigationQAOA:
         return meas_map
 
     def get_local_expectation_values_from_counts(
-            self,
-            counts: Dict[str, int],
-            all_to_all: bool = False,
+        self,
+        counts: Dict[str, int],
+        all_to_all: bool = False,
     ):
         """Compute the expectation value of Z and ZZ.
 
