@@ -6,7 +6,7 @@ from qiskit import transpile
 from qiskit.circuit import QuantumCircuit, ClassicalRegister
 from qiskit.converters import circuit_to_dag, dag_to_circuit
 
-from qiskit import Aer
+from qiskit_aer import Aer
 from qiskit import quantum_info as qi
 from qiskit.circuit import Parameter
 from qiskit.circuit.library import PauliEvolutionGate
@@ -277,11 +277,11 @@ class ErrorMitigationQAOA:
                 idx = 0
                 for i in range(self.N):
                     for j in range(i + 1, self.N):
-                        local_exp_zz[idx] += (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
+                        local_exp_zz[idx] += self.G[i][j]['weight'] * (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
                         idx += 1
             else:
-                for idx, (i, j) in enumerate(self.G.edges()):
-                    local_exp_zz[idx] += (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
+                for idx, (i, j, data) in enumerate(self.G.edges(data=True)):
+                    local_exp_zz[idx] += data['weight'] * (count * (2 * bits[i] - 1) * (2 * bits[j] - 1))
 
         num_shots = sum(counts.values())
         local_exp_z = [val / num_shots for val in local_exp_z]
